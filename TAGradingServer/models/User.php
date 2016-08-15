@@ -1,9 +1,9 @@
 <?php
 
-namespace app\models;
+namespace models;
 
 use \lib\Database;
-use lib\ExceptionHandler;
+use \lib\ExceptionHandler;
 
 /**
  * Class User
@@ -34,7 +34,7 @@ class User {
     public static $is_developer = false;
     
     /**
-    * What privledge level is this user?  
+    * What privledge level is this user?
     * @var integer
     */
     public static $user_group;

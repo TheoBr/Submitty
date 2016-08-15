@@ -6,7 +6,7 @@
     $g_id
 */
 
-use \app\models\ElectronicGradeable;
+use \models\ElectronicGradeable;
 
 $eg = new ElectronicGradeable($s_user_id, $g_id);
 
@@ -528,7 +528,7 @@ foreach ($eg->questions as $question) {
     if ($question['gc_max_value'] == 0){
         continue;
     }
-    // FIXME add autograding extra credit 
+    // FIXME add autograding extra credit
     else if($question['gcd_score'] ==0 && substr($question['gc_title'], 0, 12) === "AUTO-GRADING"){
         $question['gcd_score'] = $eg->autograding_points;
     }

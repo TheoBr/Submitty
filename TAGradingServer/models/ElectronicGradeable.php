@@ -1,13 +1,12 @@
 <?php
 
-namespace app\models;
+namespace models;
 
 use \lib\Database;
 use \lib\ExceptionHandler;
 use \lib\FileUtils;
 use \lib\ServerException;
 use \lib\Utils;
-use \app\models\User;
 
 /**
  * Class ElectronicGradeable
@@ -86,6 +85,8 @@ class ElectronicGradeable {
      gradeable data id
     **/
     public $gd_id;
+    
+    public $is_draft = false;
 
     
     //TODO Change status codes
@@ -167,7 +168,7 @@ class ElectronicGradeable {
 
     /**
      * @param null|string $student_id
-     * @param null|int $rubric_id
+     * @param null|int $g_id
      *
      * @throws \InvalidArgumentException|\RuntimeException|ServerException
      */
@@ -239,7 +240,7 @@ WHERE
 AND 
      eg.eg_submission_due_date <=?
 GROUP BY 
-    ldu.user_id", $params); 
+    ldu.user_id", $params);
 
             $row = Database::row();
 
@@ -253,10 +254,10 @@ GROUP BY
      * @throws \InvalidArgumentException
      */
     private function setEGDetails() {
-        //CHECK IF THERE IS A GRADEABLE FOR THIS STUDENT 
+        //CHECK IF THERE IS A GRADEABLE FOR THIS STUDENT
         
         $eg_details_query = "
-SELECT g_title, gd_overall_comment, g_grade_start_date, eg.* FROM electronic_gradeable AS eg 
+SELECT g_title, gd_overall_comment, gd_is_draft, g_grade_start_date, eg.* FROM electronic_gradeable AS eg 
     INNER JOIN gradeable AS g ON eg.g_id = g.g_id
     INNER JOIN gradeable_data AS gd ON gd.g_id=g.g_id 
         WHERE gd_user_id=? AND g.g_id=?";
@@ -266,7 +267,7 @@ SELECT g_title, gd_overall_comment, g_grade_start_date, eg.* FROM electronic_gra
         $this->eg_details = Database::row();
         
         if (empty($this->eg_details)) {
-            //get the active version 
+            //get the active version
             $assignment_settings = __SUBMISSION_SERVER__."/submissions/".$this->g_id."/".$this->student_id."/user_assignment_settings.json";
             if (!file_exists($assignment_settings)) {
                 $active_version = -1;
@@ -276,9 +277,10 @@ SELECT g_title, gd_overall_comment, g_grade_start_date, eg.* FROM electronic_gra
                 $results = json_decode($assignment_settings_contents, true);
                 $active_version = $results['active_version'];
             }
-                                                                    ///TODO UPDATE THE STATUS 
-            $params = array($this->g_id, $this->student_id, User::$user_id, '', 1,0,$active_version); 
-            Database::query("INSERT INTO gradeable_data(g_id,gd_user_id,gd_grader_id,gd_overall_comment, gd_status,gd_late_days_used,gd_active_version) VALUES(?,?,?,?,?,?,?)", $params); 
+            
+            // TODO UPDATE THE STATUS
+            $params = array($this->g_id, $this->student_id, User::$user_id, '', 1, 0, $active_version);
+            Database::query("INSERT INTO gradeable_data(g_id,gd_user_id,gd_grader_id,gd_overall_comment, gd_status,gd_late_days_used,gd_active_version) VALUES(?,?,?,?,?,?,?)", $params);
             $this->gd_id = \lib\Database::getLastInsertId('gradeable_data_gd_id_seq');
             
             Database::query( $eg_details_query, array($this->student_id, $this->g_id));
@@ -290,6 +292,8 @@ SELECT g_title, gd_overall_comment, g_grade_start_date, eg.* FROM electronic_gra
             Database::query("SELECT gd_id FROM gradeable as g INNER JOIN gradeable_data AS gd ON g.g_id=gd.g_id WHERE gd_user_id=? AND g.g_id =?", $params);
             $this->gd_id = Database::row()['gd_id'];
         }
+        
+        $this->is_draft = isset($this->eg_details['gd_is_draft']) ? $this->eg_details['gd_is_draft'] === true : false;
 
         $this->submission_ids[1] = $this->eg_details['g_id'];
                 
@@ -320,8 +324,8 @@ ORDER BY gc_order ASC
                     $total += $testcase_value;
                 }
             }
-        }   
-        $this->autograding_max = $total; 
+        }
+        $this->autograding_max = $total;
     }
 
     /**
@@ -442,7 +446,7 @@ ORDER BY gc_order ASC
     /**
      * Calculate the overall status of the electronic gradeable. There is an entire electronic gradeable status which can take
      * on the values of 0 (not accepted) or 1 (accepted) where not accepted just means electronic gradeable
-     * should get a 0 automatically and 1 means electronic gradeable should be graded. 
+     * should get a 0 automatically and 1 means electronic gradeable should be graded.
      */
     private function calculateStatus() {
         if (!$this->submitted) {
@@ -458,7 +462,7 @@ ORDER BY gc_order ASC
             $this->status=0;
         }
         // IF MORE LATEDAYS WERE USED THAN THE STUDENT IS ALLOWED => FAIL
-        else if ($this->student['student_allowed_lates'] >= 0 && !$submitted_lates && 
+        else if ($this->student['student_allowed_lates'] >= 0 && !$submitted_lates &&
                  $this->days_late + $this->student['used_late_days'] > $this->student['student_allowed_lates']) {
             $this->status = 0;
         }
@@ -502,6 +506,6 @@ ORDER BY gc_order ASC
                 $total += $question['gc_max_value'];
             }
         }
-        $this->eg_details['eg_total'] = $total; 
+        $this->eg_details['eg_total'] = $total;
     }
 }

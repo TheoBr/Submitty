@@ -1,7 +1,7 @@
 <?php
-use app\models\User;
+use \models\User;
 
-use \app\models\ElectronicGradeable;
+use \models\ElectronicGradeable;
 
 	include "../header.php";
 
@@ -28,7 +28,7 @@ GROUP BY
     g.g_id", $params);
 	$gradeable_info = $db->row();
     
-// students and their grade data    
+// students and their grade data
 $query = "
 SELECT
 	s.*,
@@ -47,7 +47,7 @@ FROM
         GROUP BY 
             g_id, 
             gd_user_id
-	) as gt ON gt.gd_user_id=s.user_id "; 
+	) as gt ON gt.gd_user_id=s.user_id ";
 
 print <<<HTML
 	<style type="text/css">
@@ -193,7 +193,7 @@ HTML;
         if(count($students) > 0) {
             if(isset($row['score'])) {
                 if($row['score'] >= 0) {
-                    echo "<a class='btn' href='{$BASE_URL}/account/index.php?g_id=" . $_GET["g_id"] . "&individual=" . $student["user_id"] . "'>[ " . ($row['score'] +$eg->autograding_points). 
+                    echo "<a class='btn' href='{$BASE_URL}/account/index.php?g_id=" . $_GET["g_id"] . "&individual=" . $student["user_id"] . "'>[ " . ($row['score'] +$eg->autograding_points).
                            " / " . ($rubric_total + $eg->autograding_max) . " ]</a>";
                 } else {
                     echo "<a class='btn btn-danger' href='{$BASE_URL}/account/index.php?g_id=" . $_GET["g_id"] . "&individual=" . $student["user_id"] . "'>[ GRADING ERROR ]</a>";

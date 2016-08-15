@@ -1,7 +1,7 @@
 <?php
 include "../header.php";
 
-use app\models\User;
+use \models\User;
 use lib\Database;
 
 $account_subpages_unlock = true;
@@ -80,7 +80,7 @@ if(isset($_GET["g_id"]) && isset($rubric["g_id"])) {
         $lates = $db->row();
         $student_allowed_lates = 2;//isset($lates['allowed_lates']) ? intval($lates['allowed_lates']) : 0;
 
-        // DETERMINE IF A STUDENT HAS BEEN GRADED 
+        // DETERMINE IF A STUDENT HAS BEEN GRADED
         $params = array($s_user_id, $g_id);
         $db->query("SELECT COUNT(*) AS cnt FROM gradeable_data as gd INNER JOIN gradeable_component_data AS gcd ON gd.gd_id=gcd.gd_id WHERE gd_user_id=? and g_id=? GROUP BY g_id", $params);
         $temp_row = $db->row();
@@ -164,7 +164,7 @@ ORDER BY
                 $db->query("SELECT gd_grader_id FROM gradeable_data WHERE gd_user_id=? AND g_id=?", $params);
                 $temp_row = $db->row();
 
-                if(intval($temp_row["gd_grader_id"]) == \app\models\User::$user_id) {
+                if(intval($temp_row["gd_grader_id"]) == User::$user_id) {
                     $position_completed++;
                 } else {
                     $position_other++;
@@ -311,7 +311,7 @@ HTML;
 }
 else if(!isset($_GET["g_id"])) {
 
-    // update with the gradeable data 
+    // update with the gradeable data
     $params = array();
     
     $db->query("SELECT g_title, g.g_id, g_grade_start_date FROM gradeable AS g INNER JOIN electronic_gradeable AS eg ON g.g_id=eg.g_id", $params);
@@ -403,9 +403,9 @@ if(isset($_GET["g_id"]) && isset($g_id)) {
     <i title="Show/Hide Files Viewer (Press F)" <?php echo "class='icon-files".(($show_right == 0) ? "' ": " icon-selected'") ;?> onclick="handleKeyPress('KeyF')"></i>
     <a <?php echo ($previous_user_id == "" ? "" : "href=\"{$BASE_URL}/account/index.php?course={$_GET['course']}&g_id={$_GET['g_id']}&prev={$previous_user_id}\""); ?> ><i title="Go to the previous student (Press Left Arrow)" class="icon-left <?php echo ($previous_user_id == "" ? 'icon-disabled"' : '"'); ?> ></i></a>
     <a href="<?php echo $BASE_URL; ?>/account/account-summary.php?g_id=<?php echo $_GET["g_id"]; ?>"><i title="Go to the main page (Press H)" class="icon-home" ></i></a>
-    <a <?php echo ($next_user_id == "" ? "" : "href=\"{$BASE_URL}/account/index.php?course={$_GET['course']}&g_id={$_GET['g_id']}&next={$next_user_id}\""); ?> ><i title="Go to the next student (Press Right Arrow)" class="icon-right <?php echo ($next_user_id == "" ? 'icon-disabled"' : '"'); ?>></i></a>
+    <a <?php echo ($next_user_id == "" ? "" : "href=\"{$BASE_URL}/account/index.php?course={$_GET['course']}&g_id={$_GET['g_id']}&next={$next_user_id}\""); ?> ><i title="Go to the next student (Press Right Arrow)" class="icon-right <?php echo ($next_user_id == "" ? 'icon-disabled' : ''); ?>"></i></a>
     <i title="Pin Toolbar" class="icon-toolbar-up" ></i>
-    <div style="width:100%; height: 15px; bottome:0;">
+    <div style="width:100%; height: 15px; bottom: 0;">
         <?php if($position_other == 0) { ?>
             <div class="progress" id="prog" style="border:#AAA solid 2px; ">
                 <div class="bar bar-primary" style="width: <?php echo (($position_completed - $position_backup) / $position_total) * 95; ?>%;"><i class="icon-ok icon-white" id="progress-icon"></i></div>
@@ -621,10 +621,10 @@ if(isset($_GET["g_id"]) && isset($g_id)) {
     function dragRelease() {
         document.getElementById('panemover').style.width = '10px';
         document.getElementById('panemover').style.left = document.getElementById('pane').offsetLeft + 'px';
-        split = parseFloat(document.getElementById('left').style.width) / (parseFloat(document.getElementById('left').style.width) 
+        split = parseFloat(document.getElementById('left').style.width) / (parseFloat(document.getElementById('left').style.width)
                 + parseFloat(document.getElementById('right').style.width));
 
-        var splitVar = parseFloat(100 * (parseFloat(document.getElementById('left').style.width) / (parseFloat(document.getElementById('left').style.width) 
+        var splitVar = parseFloat(100 * (parseFloat(document.getElementById('left').style.width) / (parseFloat(document.getElementById('left').style.width)
                        + parseFloat(document.getElementById('right').style.width)))).toFixed(2);
         setCookie("split", splitVar, 180*24*60*60);
 
