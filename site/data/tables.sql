@@ -146,7 +146,8 @@ CREATE TABLE gradeable_data (
     gd_overall_comment character varying NOT NULL,
     gd_status integer NOT NULL,
     gd_late_days_used integer NOT NULL,
-    gd_active_version integer NOT NULL
+    gd_active_version integer NOT NULL,
+    gd_is_draft boolean DEFAULT FALSE NOT NULL
 );
 
 

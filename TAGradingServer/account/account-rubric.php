@@ -677,6 +677,10 @@ HTML;
 }
              
 if (!($now < new DateTime($eg->eg_details['g_grade_start_date']))) {
+    $output .= <<<HTML
+        <input class="btn btn-large btn-primary" name="draft" type="submit" value="Submit Grade Draft" />
+HTML;
+
     if((!isset($_GET["individual"])) || (isset($_GET["individual"]) && !$student_individual_graded)) {
         $output .= <<<HTML
         <input class="btn btn-large btn-primary" type="submit" value="Submit Homework Grade"/>

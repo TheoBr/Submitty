@@ -21,6 +21,7 @@ $status = intval($_POST['status']);
 $submitted = intval($_POST['submitted']);
 $is_graded = boolval($_POST['is_graded']);
 $_POST["late"] = intval($_POST['late']);
+$is_draft = isset($_POST['draft']);
 
 if ($gradeable['eg_late_days'] > 0) {
     $homeworkDate->add(new DateInterval("PT{$gradeable['eg_late_days']}H"));
@@ -60,8 +61,8 @@ foreach($rows AS $row){
 
 //update the gradeable data
 $overall_comment = $_POST['comment-general'];
-$params = array($overall_comment, $gd_id);
-$db->query("UPDATE gradeable_data SET gd_overall_comment=? WHERE gd_id=?",$params);
+$params = array($overall_comment, $is_draft, $gd_id);
+$db->query("UPDATE gradeable_data SET gd_overall_comment=?, gd_is_draft=? WHERE gd_id=?",$params);
 
 var_dump($_POST);
 
