@@ -71,8 +71,8 @@ AND gc_order=?
             $row = $db->row();
             if (empty($row)){
                 //TODO FILL IN THE CORRECT STATUS? UPDATE the grader as the current user
-               $params = array($g_id, $user_id, User::$user_id, '', 0,0,1);
-               $db->query("INSERT INTO gradeable_data(g_id,gd_user_id,gd_grader_id,gd_overall_comment, gd_status,gd_late_days_used,gd_active_version) VALUES(?,?,?,?,?,?,?)", $params); 
+               $params = array($g_id, $user_id, User::$user_id, '', 0,0,1,1);
+               $db->query("INSERT INTO gradeable_data(g_id,gd_user_id,gd_grader_id,gd_overall_comment, gd_status,gd_late_days_used,gd_active_version,gd_graded_version) VALUES(?,?,?,?,?,?,?,?)", $params);
                $gd_id = \lib\Database::getLastInsertId('gradeable_data_gd_id_seq');
             }
             else{
